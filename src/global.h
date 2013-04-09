@@ -109,6 +109,10 @@ public:
 	void update( const cacheAtom & newValue){
 		req = newValue.getReq();
 	}
+	
+	void updateFlags( uint32_t outerFlags){
+		req.flags = outerFlags;
+	}
 };
 
 void ExitNow(unsigned code);
