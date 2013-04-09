@@ -8,6 +8,7 @@
 #include "configuration.h"
 #include "parser.h"
 #include "lru_stl.h"
+#include "lru_ziqi.h"
 #include "stats.h"
 #include "min.h"
 
@@ -26,6 +27,9 @@ deque<reqAtom> memTrace; // in memory trace file
 
 void	readTrace(deque<reqAtom> & memTrace)
 {
+  
+  
+  
 	assert(_gTraceBased); // read from stdin is not implemented
 	_gConfiguration.traceStream.open(_gConfiguration.traceName, ifstream::in);
 
@@ -36,9 +40,26 @@ void	readTrace(deque<reqAtom> & memTrace)
 	reqAtom newAtom;
 	uint32_t lineNo = 0;
 	while(getAndParseMSR(_gConfiguration.traceStream , &newAtom)){
-		//drop all reads if simulation setup is writeOnly
-		if(newAtom.flags & WRITE && _gConfiguration.writeOnly){
-#ifdef REQSIZE
+		
+		///ziqi: if writeOnly is 1, only insert write cache miss page to cache
+		if(_gConfiguration.writeOnly){
+			if(newAtom.flags & WRITE){
+	#ifdef REQSIZE
+				uint32_t reqSize= newAtom.reqSize; 
+				newAtom.reqSize = 1;
+				//expand large request
+				for( uint32_t i=0 ; i < reqSize ; ++ i) {
+					memTrace.push_back(newAtom);
+					++ newAtom.fsblkno; 
+				}
+	#else
+				memTrace.push_back(newAtom);
+	#endif
+			}
+		}
+		///ziqi: if writeOnly is 0, insert both read & write cache miss page to cache
+		else {
+	#ifdef REQSIZE	  
 			uint32_t reqSize= newAtom.reqSize; 
 			newAtom.reqSize = 1;
 			//expand large request
@@ -46,10 +67,11 @@ void	readTrace(deque<reqAtom> & memTrace)
 				memTrace.push_back(newAtom);
 				++ newAtom.fsblkno; 
 			}
-#else
+        #else
 			memTrace.push_back(newAtom);
-#endif
+	#endif		  
 		}
+		
 		assert(lineNo < newAtom.lineNo ); 
 		IFDEBUG( lineNo = newAtom.lineNo;  );
 		newAtom.clear();
@@ -78,6 +100,9 @@ void	Initialize(int argc, char **argv, deque<reqAtom> & memTrace)
 		if( _gConfiguration.GetAlgName(i).compare("pagelru") == 0 ){
 			_gTestCache[i] = new PageLRUCache<uint64_t,cacheAtom>(cacheAll, _gConfiguration.cacheSize[i], i);
 		}
+		else if( _gConfiguration.GetAlgName(i).compare("ziqilru") == 0 ){
+			_gTestCache[i] = new ZiqiLRUCache<uint64_t,cacheAtom>(cacheAll, _gConfiguration.cacheSize[i], i);
+		}
 		else if ( _gConfiguration.GetAlgName(i).compare("pagemin") == 0	 ){
 			_gTestCache[i] = new PageMinCache(cacheAll, _gConfiguration.cacheSize[i], i);
 		}
@@ -91,7 +116,7 @@ void	Initialize(int argc, char **argv, deque<reqAtom> & memTrace)
 		else{
 			cerr<< "Error: UnKnown Algorithm name " <<endl;
 			exit(1);
-		}
+		} 
 	}
 	PRINTV (logfile << "Configuration and setup done" << endl;);
 	srand(0);
@@ -108,9 +133,14 @@ void reportProgress(){
 	if(completePercent == 100 )
 		std::cerr<<endl;
 }
+
+/*backup
 void recordOutTrace( int level, reqAtom newReq){
 	if(_gConfiguration.outTraceStream[level].is_open()){
 		_gConfiguration.outTraceStream[level] << newReq.issueTime << "," <<"OutLevel"<<level<<",0,";
+		
+		//_gConfiguration.outTraceStream[level] <<"flags: "<< newReq.flags <<" !"; 
+		
 		if(newReq.flags & READ){
 			_gConfiguration.outTraceStream[level] << "Read,";
 		}
@@ -121,6 +151,27 @@ void recordOutTrace( int level, reqAtom newReq){
 		
 	}
 }
+*/
+
+///ziqi version
+void recordOutTrace( int level, reqAtom newReq){
+	if(_gConfiguration.outTraceStream[level].is_open()){
+		_gConfiguration.outTraceStream[level] << newReq.issueTime<<"!";
+		
+		//_gConfiguration.outTraceStream[level] <<"flags: "<< newReq.flags <<" !"; 
+		/*
+		if(newReq.flags & READ){
+			_gConfiguration.outTraceStream[level] << "Read,";
+		}
+		else
+			_gConfiguration.outTraceStream[level] << "Write,";
+		*/
+		//FIXME: check math
+		_gConfiguration.outTraceStream[level] << newReq.fsblkno << endl;
+		
+	}
+}
+
 void RunBenchmark( deque<reqAtom> & memTrace){
 	PRINTV (logfile << "Start benchmarking" << endl;);
 	while( ! memTrace.empty() ){

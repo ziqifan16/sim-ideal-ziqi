@@ -57,7 +57,9 @@ public:
 	Stat BlockEvict; //11
 	
 	Stat Cold2Cold; //12
-	Stat Cold2Hot; 
+	Stat Cold2Hot;
+	///ziqi
+	Stat DirtyPage; //14
 	
 	StatsDS()
 	: Ref("Total References")
@@ -75,6 +77,7 @@ public:
 	, BlockEvict("Block Evict")
 	, Cold2Cold("Cold2Cold")
 	, Cold2Hot("Cold2Hot")
+	, DirtyPage("DirtyPage") ///ziqi
 	{
 		returnIndex=0;
 	}
@@ -93,7 +96,9 @@ public:
 			case 10:	++returnIndex; return &BlockWriteMiss;
 			case 11:	++returnIndex; return &BlockEvict;
 			case 12:	++returnIndex; return &Cold2Cold;
-			case 13: 	++returnIndex; return &Cold2Hot; 
+			case 13: 	++returnIndex; return &Cold2Hot;
+			case 14: 	++returnIndex; return &DirtyPage; ///ziqi
+
 			default:	return NULL;
 		}
 	}

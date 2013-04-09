@@ -42,6 +42,8 @@ const uint32_t BLKMISS = 32;
 const uint32_t BLKHIT = 64;
 const uint32_t COLD2COLD=128;
 const uint32_t COLD2HOT=256;
+//ziqi: denote dirty page
+const uint32_t DIRTY=512;
 
 
 const uint32_t INF = 0xFFFFFFFF;
@@ -51,7 +53,8 @@ public:
 	uint64_t fsblkno; //file system block number (from trace file)
 	uint32_t reqSize; // request size from trace file
 	uint64_t ssdblkno; //ssd block number
-	double issueTime; // time stapt in the trace
+	///ziqi: change from double to unsigned
+	unsigned issueTime; // time stapt in the trace
 	uint32_t lineNo; // line number in the trace
 	uint32_t flags;
 	reqAtom() {

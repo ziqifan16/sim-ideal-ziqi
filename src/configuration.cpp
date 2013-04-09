@@ -110,7 +110,7 @@ bool Configuration::read(int argc, char **argv) {
 		}
 		catch(...){
 			//no log file specified
-			
+			tempStr.clear();
 		}
 		if( ! tempStr.empty() ){
 			writeOnly = (bool) myString2intConverter(tempStr);

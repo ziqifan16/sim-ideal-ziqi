@@ -10,6 +10,12 @@ void collectStat( int level, uint32_t newFlags){
 	
 	++ _gStats[level].Ref;
 	
+	///ziqi: find dirty page number
+	if(newFlags & DIRTY){
+		++_gStats[level].DirtyPage ;
+	
+	}
+	
 	// find read or write count
 	
 	if(newFlags	&	READ){

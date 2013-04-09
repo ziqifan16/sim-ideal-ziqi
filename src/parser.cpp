@@ -2,13 +2,13 @@
 #include "global.h"
 #include "parser.h"
 
-// multiply 1000 to reach milisecond, orignial value to produce second has 3 more zero
-#define WINDOWS_TICK 10000
+/// ziqi convert to seconds
+#define WINDOWS_TICK 10000000
 #define SEC_TO_UNIX_EPOCH 11644473600LL
 
-double  WindowsTickToUnixmiliSeconds(long long windowsTicks)
+unsigned  WindowsTickToUnixmiliSeconds(long long windowsTicks)
 {
-	return (double)((double)((double) windowsTicks / (double) WINDOWS_TICK) - SEC_TO_UNIX_EPOCH);
+	return (unsigned)(windowsTicks / WINDOWS_TICK - SEC_TO_UNIX_EPOCH);
 }
 
 bool  getAndParseMSR(std::ifstream & inputTrace, reqAtom *newn)
@@ -46,8 +46,8 @@ bool  getAndParseMSR(std::ifstream & inputTrace, reqAtom *newn)
 
 		if(time) {
 			if(WindowsTickToUnixmiliSeconds(time) <= DBL_MAX) {
-				//FIXME: ARH: is this time satisfy disksim timing rules ?
-				newn->issueTime = (double) WindowsTickToUnixmiliSeconds(time);
+				///ziqi: change from double to unsigned//FIXME: ARH: is this time satisfy disksim timing rules ?
+				newn->issueTime = WindowsTickToUnixmiliSeconds(time);
 // 				new->time = new->time*1000; //manual scale by ARH
 			} else {
 				fprintf(stderr, "ARH: request time reach to the double boundry\n");
@@ -82,8 +82,9 @@ bool  getAndParseMSR(std::ifstream & inputTrace, reqAtom *newn)
 			if(strcmp(r_w, "Write") == 0) {
 				newn->flags = WRITE;
 			} else if(strcmp(r_w, "Read") == 0) {
-				newn->flags = READ;
- 				continue; //only write acceess (Read bug dareh)
+				newn->flags = READ; 
+				///ziqi: both read and write request
+ 				//continue; 
 			} else
 				continue;
 
@@ -177,6 +178,7 @@ static double iotrace_raw_get_hirestime (int bigtime, int smalltime)
       smallticks = turnovers * 65536 + small;
       basebigtime = bigtime;
       basesmalltime = smalltime;
+      
       basesimtime += (double) smallticks * (double) 0.000838574;
    }
    return(basesimtime);

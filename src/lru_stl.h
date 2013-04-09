@@ -64,6 +64,7 @@ public:
 				status |=  insert(k, v);
 				PRINTV(logfile << "Insert done on key: " << k << endl;);
 			}
+			
 
 			return (status | PAGEMISS);
 		} else {
