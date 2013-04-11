@@ -23,7 +23,7 @@ using namespace std;
 
 ///ziqi: time gap between two sync in seconds
 const int syncTime = 30;
-int seqEvictionNum = 0;
+
 // Class providing fixed-size (by number of records)
 // LRU-replacement cache of a function with signature
 // V f(K)
@@ -76,7 +76,6 @@ public:
 		assert(_capacity != 0);
 		PRINTV(logfile << "Access key: " << k << endl;);
 		
-
 		///ziqi: if request is write, mark the page status as DIRTY
 		if(status & WRITE) {
 		      status|= DIRTY;
@@ -103,7 +102,7 @@ public:
 			const V v = _fn(k, value);
 
 			///ziqi: inserts new elements on read and write miss
-			status |=  insert(k, v);
+			status |=  insert(k, v,status);
 			PRINTV(logfile << "Insert done on key: " << k << endl;);
 
 			return (status | PAGEMISS);
@@ -159,7 +158,7 @@ public:
 private:
 
 // Record a fresh key-value pair in the cache
-	int insert(const K& k, const V& v) {
+	int insert(const K& k, const V& v, uint32_t status) {
 		PRINTV(logfile << "insert key " << k  << endl;);
 		int localStatus = 0;
 // Method is only called on cache misses
@@ -168,8 +167,8 @@ private:
 // Make space if necessary
 		if(_key_to_value.size() == _capacity) {
 			PRINTV(logfile << "Cache is Full " << _key_to_value.size() << " sectors" << endl;);
-			evict();
-			localStatus = EVICT;
+			status|=evict(status);
+			localStatus = EVICT|status;
 		}
 
 // Record k as most-recently-used key
@@ -201,7 +200,7 @@ private:
 	}
 	
 // Purge the least-recently-used element in the cache
-	void evict() {
+	int evict(uint32_t status) {
 // Assert method is never called when cache is empty
 		assert(!_key_tracker.empty());
 // Identify least recently used key
@@ -270,8 +269,7 @@ private:
 				  ///ziqi: if the seqLength is above the threshold, evict them all
 				  if(seqLength > threshold)
 				  {
-				    seqEvictionNum++;
-				    PRINTV(logfile << "seq Eviction Number " << seqEvictionNum <<  endl;);
+				    status |= SEQEVICT;
 				    evictSth = true;
 				    for(int z=0; z<seqLength; z++){
 				      remove((*itTracker)+z);
@@ -303,6 +301,7 @@ private:
 		      _key_tracker.pop_front();  
 		    }
 		  }
+		  return status;
 	}
 // The function to be cached
 	V(*_fn)(const K& , V);
