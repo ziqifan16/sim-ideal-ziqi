@@ -110,6 +110,11 @@ public:
 		req = newValue.getReq();
 	}
 	
+	///ziqi
+	uint32_t getFlags() const {
+		return req.flags;
+	}
+	///ziqi
 	void updateFlags( uint32_t outerFlags){
 		req.flags = outerFlags;
 	}

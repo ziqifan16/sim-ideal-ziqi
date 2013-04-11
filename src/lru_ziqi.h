@@ -23,6 +23,7 @@ using namespace std;
 
 ///ziqi: time gap between two sync in seconds
 const int syncTime = 30;
+int seqEvictionNum = 0;
 // Class providing fixed-size (by number of records)
 // LRU-replacement cache of a function with signature
 // V f(K)
@@ -80,6 +81,7 @@ public:
 		if(status & WRITE) {
 		      status|= DIRTY;
 		      value.updateFlags(status);
+		      //cout<<"flags are "<<value.getFlags()<<endl;
 		      //const V v1 = _fn(k, value);
 		      //insertDirtyPage(k, v1);
 		}
@@ -215,42 +217,92 @@ private:
 ///ziqi: above threshold count as one sequential write
 		int threshold = 4;
 		
-///ziqi: itSeq is used to check whether their are other sequential dirty page in the map
-		const typename key_to_value_type::iterator itSeq;
+
 		
 ///ziqi: if the key is not dirty, evict it
-		//if(!((it->second.first.getReq().flags) & DIRTY)) {
+		if(!((it->second.first.getReq().flags) & DIRTY)) {
 		  PRINTV(logfile << "evicting victim non-dirty key " << (*it).first <<  endl;);
 		  //cout<<it->second.first.getReq().flags<<endl;
   // Erase both elements to completely purge record
 		  _key_to_value.erase(it);
 		  
 		  _key_tracker.pop_front();
+	
 		
-		/*
 		}
 ///ziqi: if the key is dirty, check its sequential length
 		else{
-		    for(itSeq = _key_to_value.begin(); itSeq!=_key_to_value.end(); itSeq++){
-			if((itSeq->second.first.getReq().flags) & DIRTY)
-			{
-			  if((it->second.first.getFsblkno()+seqLength) == itSeq->second.first.getFsblkno())
+		  ///set a for loop that goes from the front of _key_tracker to the end to fetch each cacheAtom.
+		  ///For each cacheAtom, check whether there are sequential cacheAtom by using _key_to_value.find(itSeq->second.first.getFsblkno())
+		  ///if there is, seqLengh++, if not, check seqLength, if above threshold, evict, if not, check next cacheAtom in the for loop
+		  ///if none is good, evict the cacheAtom located by  _key_tracker.front()
+		    typename key_tracker_type::iterator itTracker;
+		    
+		    ///ziqi: itSeq is used to check whether their are other sequential dirty page in the map
+		    typename key_to_value_type::iterator itSeq;
+		    
+		    typename key_to_value_type::iterator itSeqTemp;
+		    
+		    ///ziqi: denote whether any page has been evicted. If none is evicted, evict the origianl dirty page
+		    bool evictSth = false;
+		    
+		    ///ziqi: denote the first sequential fs block number
+		    uint64_t firstSeqFsblkno = 0;
+		    
+		    for(itTracker = _key_tracker.begin(); itTracker!=_key_tracker.end(); itTracker++){
+			cout<<"itTracker "<<*itTracker<<endl;
+			itSeq = _key_to_value.find(*itTracker);
+			firstSeqFsblkno = *itTracker;
+			seqLength = 0;
+			while(true){
+			  
+			  if(itTracker == _key_tracker.end()){
+			    break;
+			  }
+			//for(itSeq = _key_to_value.begin(); itSeq!=_key_to_value.end(); itSeq++){
+			  //firstSeqFsblkno = itSeq->second.first.getFsblkno();
+			  cout<<"firstSeqFsblkno "<<firstSeqFsblkno<<endl;
+			  if((itSeq->second.first.getReq().flags) & DIRTY)
 			  {
-			    seqLength++;
-			    itSeq = _key_to_value.begin();
-			    continue;
+				itSeqTemp = _key_to_value.find(firstSeqFsblkno);
+			      
+				if(itSeqTemp == _key_to_value.end()||!((itSeqTemp->second.first.getReq().flags) & DIRTY)) {
+				  ///ziqi: if the seqLength is above the threshold, evict them all
+				  if(seqLength > threshold)
+				  {
+				    seqEvictionNum++;
+				    PRINTV(logfile << "seq Eviction Number " << seqEvictionNum <<  endl;);
+				    evictSth = true;
+				    for(int z=0; z<seqLength; z++){
+				      remove((*itTracker)+z);
+				    }
+				  }
+				  cout<<"would break"<<endl;
+				  break;
+				}
+				///ziqi: find a sequential block, sequential length plus 1
+				else{
+				  firstSeqFsblkno++;
+				  seqLength++;
+				}
+			  }
+			  else{
+			    break;
 			  }
 			}
+			if(evictSth){
+			  break;
+			}	    
 		    }
-		    
-		    if(seqLength > threshold)
-		    {
-		      
+		
+		    if(!evictSth){
+		      PRINTV(logfile << "evicting victim first dirty key " << (*it).first <<  endl;);
+		    //cout<<it->second.first.getReq().flags<<endl;
+    // Erase both elements to completely purge record
+		      _key_to_value.erase(it);  
+		      _key_tracker.pop_front();  
 		    }
-		}
-		*/
-		
-		
+		  }
 	}
 // The function to be cached
 	V(*_fn)(const K& , V);
@@ -261,6 +313,7 @@ private:
 	key_tracker_type _key_tracker;
 // Key-to-value lookup
 	key_to_value_type _key_to_value;
+
 ///ziqi: dirty page tracker
 	key_tracker_type _dirty_page_tracker;
 ///ziqi: dirty page map

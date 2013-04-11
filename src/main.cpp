@@ -169,6 +169,8 @@ void recordOutTrace( int level, reqAtom newReq){
 		//FIXME: check math
 		_gConfiguration.outTraceStream[level] << newReq.fsblkno << endl;
 		
+		//_gConfiguration.outTraceStream[level] << newReq.flags << endl;
+		
 	}
 }
 
