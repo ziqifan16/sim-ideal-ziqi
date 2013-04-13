@@ -216,7 +216,6 @@ private:
 ///ziqi: above threshold count as one sequential write
 		int threshold = 4;
 		
-
 		
 ///ziqi: if the key is not dirty, evict it
 		if(!((it->second.first.getReq().flags) & DIRTY)) {
@@ -249,7 +248,7 @@ private:
 		    uint64_t firstSeqFsblkno = 0;
 		    
 		    for(itTracker = _key_tracker.begin(); itTracker!=_key_tracker.end(); itTracker++){
-			cout<<"itTracker "<<*itTracker<<endl;
+			//cout<<"itTracker "<<*itTracker<<endl;
 			itSeq = _key_to_value.find(*itTracker);
 			firstSeqFsblkno = *itTracker;
 			seqLength = 0;
@@ -260,7 +259,7 @@ private:
 			  }
 			//for(itSeq = _key_to_value.begin(); itSeq!=_key_to_value.end(); itSeq++){
 			  //firstSeqFsblkno = itSeq->second.first.getFsblkno();
-			  cout<<"firstSeqFsblkno "<<firstSeqFsblkno<<endl;
+			  //cout<<"firstSeqFsblkno "<<firstSeqFsblkno<<endl;
 			  if((itSeq->second.first.getReq().flags) & DIRTY)
 			  {
 				itSeqTemp = _key_to_value.find(firstSeqFsblkno);
@@ -275,7 +274,7 @@ private:
 				      remove((*itTracker)+z);
 				    }
 				  }
-				  cout<<"would break"<<endl;
+				  //cout<<"would break"<<endl;
 				  break;
 				}
 				///ziqi: find a sequential block, sequential length plus 1

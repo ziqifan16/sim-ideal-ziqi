@@ -1,4 +1,4 @@
-Start Logging at Thu Apr 11 16:42:13 2013
+Start Logging at Sat Apr 13 10:46:34 2013
 
 Configuration and setup done
 Start benchmarking
@@ -21264,5 +21264,5 @@ Hit on key: 770053
 Access key: 245584
 Hit on key: 245584
 Benchmarking Done
-End Logging at Thu Apr 11 16:43:08 2013
+End Logging at Sat Apr 13 10:47:26 2013
 
