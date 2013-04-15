@@ -28,7 +28,6 @@
 #define IFHIST(X)
 #endif
 
-
 extern Configuration	_gConfiguration;
 
 #define logfile _gConfiguration.logStream
@@ -46,8 +45,8 @@ const uint32_t COLD2HOT=256;
 const uint32_t DIRTY=512;
 const uint32_t SEQEVICT=1024;
 
-
 const uint32_t INF = 0xFFFFFFFF;
+
 class reqAtom
 {
 public:

@@ -28,6 +28,10 @@ public:
 	std::string print() {
 		return name.append(",\t").append( std::to_string((unsigned long long) counter)  );
 	}
+	uint64_t getCounter(){
+		return counter;
+	}
+	
 };
 
 void collectStat( int level, uint32_t newFlags);

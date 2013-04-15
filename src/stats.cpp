@@ -6,6 +6,8 @@
 using namespace std; 
 extern StatsDS *  _gStats; 
 
+extern int totalSeqEvictedBlocks;
+
 void collectStat( int level, uint32_t newFlags){
 	
 	++ _gStats[level].Ref;
@@ -130,12 +132,20 @@ void printStats(){
 	statStream<<_gConfiguration.testName<<endl;
 	Stat * tempStat;
 	
+	
+	
+	
 	//print stat results for each level 
 	for( int i=0 ; i < _gConfiguration.totalLevels ; i++ ){
 		statStream << "Level "<<i+1<<",\t"<<_gConfiguration.GetAlgName(i)<<endl; 
 		while( ( tempStat = _gStats[i].next() ) ){
 			statStream<< tempStat->print() <<endl;
 		}
+		
+		uint64_t blockEvict = _gStats[i].BlockEvict.getCounter();
+		uint64_t seqEviction = _gStats[i].SeqEviction.getCounter();
+		
+		statStream<< "Real Total Evicted Blocks, "<<((int)blockEvict-(int)seqEviction+totalSeqEvictedBlocks)<<endl;
 		statStream<<endl;
 	}
 	statStream.close();

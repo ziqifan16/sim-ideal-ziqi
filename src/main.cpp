@@ -18,6 +18,8 @@ using namespace std;
 //GLOBALS
 ////////////////////////////////////////////////////////////////////////////////
 
+int totalSeqEvictedBlocks;
+
 Configuration	_gConfiguration;
 bool _gTraceBased = false; 
 TestCache<uint64_t,cacheAtom> ** _gTestCache; // pointer to each cache class in the hierachy 
@@ -197,7 +199,7 @@ void RunBenchmark( deque<reqAtom> & memTrace){
 
 int main(int argc, char **argv)
 {
-
+	totalSeqEvictedBlocks=0;
 	//read benchmark configuration
 	Initialize(argc, argv,memTrace);
  	RunBenchmark(memTrace); // send reference memTrace

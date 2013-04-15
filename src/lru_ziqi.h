@@ -21,8 +21,9 @@
 
 using namespace std;
 
-///ziqi: time gap between two sync in seconds
-const int syncTime = 30;
+
+extern int totalSeqEvictedBlocks;
+
 
 // Class providing fixed-size (by number of records)
 // LRU-replacement cache of a function with signature
@@ -73,6 +74,9 @@ public:
 	
 	
 	uint32_t access(const K& k  , V& value, uint32_t status) {
+	  
+		assert(_key_to_value.size() <= _capacity);
+		
 		assert(_capacity != 0);
 		PRINTV(logfile << "Access key: " << k << endl;);
 		
@@ -163,6 +167,8 @@ private:
 		int localStatus = 0;
 // Method is only called on cache misses
 		assert(_key_to_value.find(k) == _key_to_value.end());
+		
+		assert(_key_to_value.size() <= _capacity);
 
 // Make space if necessary
 		if(_key_to_value.size() == _capacity) {
@@ -185,6 +191,9 @@ private:
 	
 	// Record a fresh key-value pair in the cache
 	int insertDirtyPage(const K& k, const V& v) {
+	  
+		assert(_key_to_value.size() <= _capacity);
+		
 		PRINTV(logfile << "dirty page insert key " << k  << endl;);
 		
 // Record k as most-recently-used key
@@ -201,6 +210,8 @@ private:
 	
 // Purge the least-recently-used element in the cache
 	int evict(uint32_t status) {
+	  
+		assert(_key_to_value.size() <= _capacity);
 // Assert method is never called when cache is empty
 		assert(!_key_tracker.empty());
 // Identify least recently used key
@@ -266,14 +277,22 @@ private:
 			      
 				if(itSeqTemp == _key_to_value.end()||!((itSeqTemp->second.first.getReq().flags) & DIRTY)) {
 				  ///ziqi: if the seqLength is above the threshold, evict them all
-				  if(seqLength > threshold)
+				  if(seqLength > threshold-1)
 				  {
 				    status |= SEQEVICT;
 				    evictSth = true;
+				    
+				    PRINTV(logfile << "evicting sequential dirty key length " << seqLength <<  endl;);
+				    totalSeqEvictedBlocks+=seqLength;
+				    
 				    for(int z=0; z<seqLength; z++){
+				      PRINTV(logfile << "evicting sequential dirty key " << ((*itTracker)+z) <<  endl;);
 				      remove((*itTracker)+z);
 				    }
+				    
+				    PRINTV(logfile << "total sequential evicted block length " << totalSeqEvictedBlocks <<  endl;);
 				  }
+				  
 				  //cout<<"would break"<<endl;
 				  break;
 				}
@@ -293,13 +312,15 @@ private:
 		    }
 		
 		    if(!evictSth){
-		      PRINTV(logfile << "evicting victim first dirty key " << (*it).first <<  endl;);
+		      PRINTV(logfile << "found no sequential dirty key, evicting original first dirty key " << (*it).first <<  endl;);
 		    //cout<<it->second.first.getReq().flags<<endl;
     // Erase both elements to completely purge record
 		      _key_to_value.erase(it);  
 		      _key_tracker.pop_front();  
 		    }
 		  }
+		  
+		  
 		  return status;
 	}
 // The function to be cached
