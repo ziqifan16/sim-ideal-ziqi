@@ -41,6 +41,9 @@ public:
 	uint64_t *pirdHist;
 	int 	totalLevels;
 	bool writeOnly;
+	
+	///ziqi: set the threshold for length of sequential write 
+	int seqThreshold;
 
 	void initHist();
 	bool read(int argc, char **argv) ;

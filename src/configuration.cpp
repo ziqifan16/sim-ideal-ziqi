@@ -116,6 +116,20 @@ bool Configuration::read(int argc, char **argv) {
 			writeOnly = (bool) myString2intConverter(tempStr);
 		}
 		
+		
+		///ziqi: read out the value for seqThreshold
+		try{
+			tempStr = pTree.get<std::string>("Global.seqThreshold");
+		}
+		catch(...){
+			//no log file specified
+			tempStr.clear();
+		}
+		if( ! tempStr.empty() ){
+			seqThreshold = (int) myString2intConverter(tempStr);
+		}
+		
+		
 		for( int i = 0; i < totalLevels ; ++i ){
 			
 			tempStr = pTree.get<std::string>		( std::string( cacheStr[i] + "." + "size"  ) );
@@ -182,6 +196,10 @@ Configuration::Configuration()
 	outTraceStream = NULL;
 	totalLevels = 0; 
 	writeOnly = false; 
+	
+	///ziqi
+	seqThreshold = 0;
+	
 	testName = 0;
 	// 		ssdblkSize = 16384 ; 
 	maxLineNo = 0;

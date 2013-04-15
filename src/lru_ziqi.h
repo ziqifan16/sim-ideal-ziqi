@@ -25,6 +25,9 @@ using namespace std;
 extern int totalSeqEvictedBlocks;
 
 
+///ziqi: above threshold count as one sequential write
+extern int threshold;
+
 // Class providing fixed-size (by number of records)
 // LRU-replacement cache of a function with signature
 // V f(K)
@@ -225,7 +228,7 @@ private:
 ///ziqi: denote sequential dirty page length
 		int seqLength = 0;
 ///ziqi: above threshold count as one sequential write
-		int threshold = 4;
+		//int threshold = 4;
 		
 		
 ///ziqi: if the key is not dirty, evict it
