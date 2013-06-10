@@ -6,7 +6,9 @@
 using namespace std; 
 extern StatsDS *  _gStats; 
 
-extern int totalSeqEvictedBlocks;
+extern int totalSeqEvictedDirtyBlocks;
+
+extern int totalNonSeqEvictedDirtyBlocks;
 
 void collectStat( int level, uint32_t newFlags){
 	
@@ -19,6 +21,10 @@ void collectStat( int level, uint32_t newFlags){
 	
 	if(newFlags & SEQEVICT){
 		++_gStats[level].SeqEviction ;
+	}
+	
+	if(newFlags & LESSSEQEVICT){
+		++_gStats[level].LessSeqEviction ;
 	}
 	
 	// find read or write count
@@ -144,8 +150,17 @@ void printStats(){
 		
 		uint64_t blockEvict = _gStats[i].BlockEvict.getCounter();
 		uint64_t seqEviction = _gStats[i].SeqEviction.getCounter();
+		uint64_t lessSeqEviction = _gStats[i].LessSeqEviction.getCounter();
 		
-		statStream<< "Real Total Evicted Blocks, "<<((int)blockEvict-(int)seqEviction+totalSeqEvictedBlocks)<<endl;
+		
+		statStream<< "Total Seq Evicted Dirty Blocks, "<<totalSeqEvictedDirtyBlocks<<endl;
+		
+		statStream<< "Total NonSeq Evicted Dirty Blocks, "<<totalNonSeqEvictedDirtyBlocks<<endl;
+		
+		statStream<< "Total Evicted Clean Blocks, "<<((int)blockEvict-(int)seqEviction-(int)lessSeqEviction)<<endl;
+		
+		statStream<< "Real Total Evicted Blocks, "<<((int)blockEvict-(int)seqEviction+totalSeqEvictedDirtyBlocks-(int)lessSeqEviction+totalNonSeqEvictedDirtyBlocks)<<endl;
+		
 		statStream<<endl;
 	}
 	statStream.close();

@@ -65,6 +65,7 @@ public:
 	///ziqi
 	Stat DirtyPage; //14
 	Stat SeqEviction;
+	Stat LessSeqEviction;
 	
 	StatsDS()
 	: Ref("Total References")
@@ -84,6 +85,7 @@ public:
 	, Cold2Hot("Cold2Hot")
 	, DirtyPage("DirtyPage") ///ziqi
 	, SeqEviction("SeqEviction") ///ziqi
+	, LessSeqEviction("LessSeqEviction") ///ziqi
 	{
 		returnIndex=0;
 	}
@@ -105,6 +107,7 @@ public:
 			case 13: 	++returnIndex; return &Cold2Hot;
 			case 14: 	++returnIndex; return &DirtyPage; ///ziqi
 			case 15: 	++returnIndex; return &SeqEviction; ///ziqi
+			case 16: 	++returnIndex; return &LessSeqEviction; ///ziqi
 
 			default:	return NULL;
 		}

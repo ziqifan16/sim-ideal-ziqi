@@ -44,6 +44,7 @@ const uint32_t COLD2HOT=256;
 //ziqi: denote dirty page
 const uint32_t DIRTY=512;
 const uint32_t SEQEVICT=1024;
+const uint32_t LESSSEQEVICT=2048;
 
 const uint32_t INF = 0xFFFFFFFF;
 

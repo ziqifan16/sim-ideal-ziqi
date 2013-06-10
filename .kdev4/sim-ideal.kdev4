@@ -1,8 +1,8 @@
 [Buildset]
-BuildItems=@Variant(\x00\x00\x00\t\x00\x00\x00\x00\x01\x00\x00\x00\x0b\x00\x00\x00\x00\x01\x00\x00\x00\x12\x00s\x00i\x00m\x00-\x00i\x00d\x00e\x00a\x00l)
+BuildItems=@Variant(\x00\x00\x00\t\x00\x00\x00\x00\x01\x00\x00\x00\x0b\x00\x00\x00\x00\x01\x00\x00\x00\x1a\x00s\x00i\x00m\x00-\x00i\x00d\x00e\x00a\x00l\x00_\x00V\x001\x000)
 
 [Launch]
-Launch Configurations=Launch Configuration 2,Launch Configuration 0,Launch Configuration 1,Launch Configuration 3
+Launch Configurations=Launch Configuration 2,Launch Configuration 0,Launch Configuration 1,Launch Configuration 3,Launch Configuration 4
 
 [Launch][Launch Configuration 0]
 Configured Launch Modes=execute
@@ -11,15 +11,15 @@ Name=sim-test
 Type=Native Application
 
 [Launch][Launch Configuration 0][Data]
-Arguments=../trace/test.csv pram.cfg test
+Arguments=../trace/test.csv pram_128.cfg test_pram_8
 Dependencies=@Variant(\x00\x00\x00\t\x00\x00\x00\x00\x00)
 Dependency Action=Nothing
 EnvironmentGroup=default
-Executable=file:///home/fan/sim-ideal/sim-ideal
+Executable=file:///home/fan/sim-ideal_V10/sim-ideal
 External Terminal=konsole --noclose --workdir %workdir -e %exe
 Project Target=
 Use External Terminal=false
-Working Directory=file:///home/fan/sim-ideal
+Working Directory=file:///home/fan/sim-ideal_V10/
 isExecutable=true
 
 [Launch][Launch Configuration 1]
@@ -29,15 +29,15 @@ Name=sim-test_backup
 Type=Native Application
 
 [Launch][Launch Configuration 1][Data]
-Arguments=../trace/test_backup.csv pram.cfg test
+Arguments=../trace/test_backup.csv pram_8.cfg test
 Dependencies=@Variant(\x00\x00\x00\t\x00\x00\x00\x00\x00)
 Dependency Action=Nothing
 EnvironmentGroup=default
-Executable=file:///home/fan/sim-ideal/sim-ideal
+Executable=file:///home/fan/sim-ideal_V10/sim-ideal
 External Terminal=konsole --noclose --workdir %workdir -e %exe
 Project Target=
 Use External Terminal=false
-Working Directory=file:///home/fan/sim-ideal
+Working Directory=file:///home/fan/sim-ideal_V10/
 isExecutable=true
 
 [Launch][Launch Configuration 2]
@@ -47,15 +47,15 @@ Name=sim
 Type=Native Application
 
 [Launch][Launch Configuration 2][Data]
-Arguments=../trace/CAMWEBDEV-lvm0.csv pram.cfg test
+Arguments=../trace/CAMWEBDEV-lvm0.csv pram_8.cfg test
 Dependencies=@Variant(\x00\x00\x00\t\x00\x00\x00\x00\x00)
 Dependency Action=Nothing
 EnvironmentGroup=default
-Executable=file:///home/fan/sim-ideal/sim-ideal
+Executable=file:///home/fan/sim-ideal_V10/sim-ideal
 External Terminal=konsole --noclose --workdir %workdir -e %exe
 Project Target=
 Use External Terminal=false
-Working Directory=file:///home/fan/sim-ideal
+Working Directory=file:///home/fan/sim-ideal_V10
 isExecutable=true
 
 [Launch][Launch Configuration 3]
@@ -65,15 +65,33 @@ Name=sim-smallTest
 Type=Native Application
 
 [Launch][Launch Configuration 3][Data]
-Arguments=../trace/smallTest.csv pram.cfg test
+Arguments=../trace/smallTest.csv pram_8.cfg test_pram_8
 Dependencies=@Variant(\x00\x00\x00\t\x00\x00\x00\x00\x00)
 Dependency Action=Nothing
 EnvironmentGroup=default
-Executable=file:///home/fan/sim-ideal/sim-ideal
+Executable=file:///home/fan/sim-ideal_V10/sim-ideal
 External Terminal=konsole --noclose --workdir %workdir -e %exe
 Project Target=
 Use External Terminal=false
-Working Directory=file:///home/fan/sim-ideal
+Working Directory=file:///home/fan/sim-ideal_V10/
+isExecutable=true
+
+[Launch][Launch Configuration 4]
+Configured Launch Modes=execute
+Configured Launchers=nativeAppLauncher
+Name=sim-dram
+Type=Native Application
+
+[Launch][Launch Configuration 4][Data]
+Arguments=../trace/CAM-01-SRV-lvm0.csv dram.cfg dram1_ziqi
+Dependencies=@Variant(\x00\x00\x00\t\x00\x00\x00\x00\x00)
+Dependency Action=Nothing
+EnvironmentGroup=default
+Executable=file:///home/fan/sim-ideal_V10/sim-ideal
+External Terminal=konsole --noclose --workdir %workdir -e %exe
+Project Target=
+Use External Terminal=false
+Working Directory=file:///home/fan/sim-ideal_V10/
 isExecutable=true
 
 [Project]
